@@ -199,7 +199,7 @@ class Task(object):
       raise RuntimeError("spawn_random_goal_baskets(...) given num greater than len(BASKET_LOCATIONS)")
 
     # wipe and reset basket information
-    self.basket_points = {}
+    self.basket_points = []
     self.basket_colours = []
 
     # what are the possible colours to choose from
@@ -230,7 +230,7 @@ class Task(object):
       basket_loc = goal_locs[i] + noise * (np.random.random() * 2 - 1)
       basket_point = world.spawn_goal_basket(goal_loc=basket_loc, colour=colour,
                                              name=f"object-goal-basket-{i}")
-      self.basket_points[colour] = basket_point
+      self.basket_points.append(basket_point)
       self.basket_colours.append(colour)
 
   def prepare_for_task_request(self, service_name, timeout=60):
@@ -320,7 +320,7 @@ class Task1(Task):
     pose_st.header.frame_id = "panda_link0"
     pose_st.header.stamp = rospy.Time.now()
     point_st = PointStamped()
-    point_st.point = self.basket_points[self.basket_colours[0]]
+    point_st.point = self.basket_points[0]
     point_st.header.frame_id = "panda_link0"
     point_st.header.stamp = rospy.Time.now()
     _ = task1srv(pose_st, point_st)
@@ -377,9 +377,9 @@ class Task2(Task):
 
     # get the possible basket locations as points
     basket_locs = []
-    for i in range(4):
+    for i in range(len(BASKET_LOCATIONS)):
       point_st = PointStamped()
-      point_st.point = self.basket_points[self.basket_colours[i]]
+      point_st.point = self.basket_points[i]
       point_st.header.frame_id = "panda_link0"
       point_st.header.stamp = rospy.Time.now()
       basket_locs.append(point_st)
